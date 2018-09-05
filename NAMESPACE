@@ -1,0 +1,8 @@
+exportPattern("^[[:alpha:]]+")
+importFrom("XML","htmlTreeParse","xpathApply","xmlValue","readHTMLTable")
+importFrom("stats","complete.cases")
+importFrom("countrycode","countrycode")
+importFrom("stringr","str_match")
+importFrom("RCurl","getURL")
+importFrom("tidyr","gather")
+
