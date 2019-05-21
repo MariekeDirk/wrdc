@@ -169,8 +169,8 @@ get_station_data<-function(nm,stn,yr){
 
   drop<-seq(3,length(names(df.clean)),by=2) #exclude the quality flag
 
-  df.qc<-subset(df.clean,select=drop)
-  df.qc<-tidyr::gather(df.qc,Flag,qc)
+  # df.qc<-subset(df.clean,select=drop)
+  # df.qc<-tidyr::gather(df.qc,Flag,qc)
 
   df.clean<-subset(df.clean,select=-drop)
 
@@ -179,16 +179,17 @@ get_station_data<-function(nm,stn,yr){
   #transpose to long data format
   colin<-names(df.clean)[2:length(names(df.clean))]
   df.clean<-tidyr::gather(df.clean,  Month, Radiation,colin)
-  df.clean$qc<-df.qc$qc
+  # df.clean$qc<-df.qc$qc
 
-  df.clean$Radiation<-as.numeric(df.clean$Radiation)
+  df.clean$Radiation<-as.numeric(df.clean$Radiation) #in J
   df.clean<-df.clean[stats::complete.cases(df.clean$Radiation),]
   df.clean$year<-yr
   # df.clean$id<-id
   df.clean$date<-as.Date(paste0(df.clean$year,df.clean$Month,df.clean$DATE),format="%Y%b%d")
 
-  df.wrdc.ecad<-df.clean[,c("date","Radiation","qc")] #"id",
-  names(df.wrdc.ecad)<-c("ser_date","qq","qc") #"wmo_id",
+  df.wrdc.ecad<-df.clean[,c("date","Radiation")] #"id",
+  names(df.wrdc.ecad)<-c("ser_date","qq") #"wmo_id",
+  df.wrdc.ecad$qc<--9
   df.wrdc.ecad$qcm<--9
   df.wrdc.ecad$qca<--9
   return(df.wrdc.ecad)

@@ -25,7 +25,7 @@ yr_seq<-seq(yr,2018,by=1)
 df.wrdc.ecad<-lapply(yr_seq,function(x) try(get_station_data(nm,stn,yr=x),TRUE))
 
 df.wrdc.ecad<-do.call("rbind",df.wrdc.ecad[sapply(df.wrdc.ecad, function(x) !inherits(x, "try-error"))])
-df.wrdc.ecad$qq<-try(df.wrdc.ecad$qq/3.6,TRUE)
+df.wrdc.ecad$qq<-try(as.integer(df.wrdc.ecad$qq/0.36),TRUE) #in 0.1W/m2
 
 try(write.table(df.wrdc.ecad,paste0("/nobackup/users/dirksen/data/radiation_europe/WRDC/data/country_",nm,"_stn_",stn,".txt"),
             row.names = FALSE,
