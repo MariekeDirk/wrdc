@@ -8,11 +8,11 @@ Description: The solar radiation network is stored in the WRDC archive. The data
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Imports: countrycode,
+         data.table,
          RCurl,
          stats,
          stringr,
          tidyr,
          XML
-

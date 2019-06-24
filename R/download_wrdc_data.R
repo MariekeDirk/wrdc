@@ -151,41 +151,29 @@ get_station_meta<-function(nm,stn){
 #' The last two quality control columns are to be filled during another check.
 #' @export
 get_station_data<-function(nm,stn,yr){
-  requireNamespace("XML",quite=TRUE)
-  requireNamespace("RCurl",quite=TRUE)
   requireNamespace("tidyr",quite=TRUE)
   requireNamespace("stats",quite=TRUE)
+  requireNamespace("data.table")
 
-  link<-paste0("http://wrdc.mgo.rssi.ru/wrdccgi/protect.exe?data_list_full_protected/t6/",nm,"/",stn,"/",stn,"_",yr,"_t6.html")
-  url<-RCurl::getURL(link)
-  tab<-XML::readHTMLTable(url)
-
-  df<-data.frame(tab)
-  df<-data.frame(lapply(df, as.character), stringsAsFactors=FALSE)
-  df.clean<-df[1:(nrow(df)-2),]
-
-  names(df.clean)<-gsub("NULL.","",names(df.clean))
+  link<-paste0("http://wrdc.mgo.rssi.ru/wrdccgi/protect.exe?data_list_full_protected/t6/",nm,"/",stn,"/",stn,"_",yr,"_t6.csv.html")
+  df<-fread(link,na.strings = "-32768")
+  df.clean<-df[1:(nrow(df)-2),] #exclude the monthly means from the table
 
 
-  drop<-seq(3,length(names(df.clean)),by=2) #exclude the quality flag
-
-  # df.qc<-subset(df.clean,select=drop)
-  # df.qc<-tidyr::gather(df.qc,Flag,qc)
-
+  drop<-seq(2,length(names(df.clean)),by=2) #exclude the quality flag
   df.clean<-subset(df.clean,select=-drop)
-
-
+  df.clean<-df.clean[,1:12] #select 12 months
+  colnames(df.clean)<-c("1","2","3","4","5","6","7","8","9","10","11","12") #name them accordingly
+  df.clean$Day<-rownames(df.clean) #add the days, which are the row numbers
 
   #transpose to long data format
-  colin<-names(df.clean)[2:length(names(df.clean))]
-  df.clean<-tidyr::gather(df.clean,  Month, Radiation,colin)
-  # df.clean$qc<-df.qc$qc
+  df.clean<-tidyr::gather(df.clean,  Month, Radiation,-Day) #transpose to long format
 
-  df.clean$Radiation<-as.numeric(df.clean$Radiation) #in J
+  df.clean$Radiation<-as.numeric(df.clean$Radiation)/8.64 #in W/m2
   df.clean<-df.clean[stats::complete.cases(df.clean$Radiation),]
   df.clean$year<-yr
   # df.clean$id<-id
-  df.clean$date<-as.Date(paste0(df.clean$year,df.clean$Month,df.clean$DATE),format="%Y%b%d")
+  df.clean$date<-as.Date(paste0(df.clean$year,"-",df.clean$Month,"-",df.clean$Day))
 
   df.wrdc.ecad<-df.clean[,c("date","Radiation")] #"id",
   names(df.wrdc.ecad)<-c("ser_date","qq") #"wmo_id",
