@@ -19,6 +19,7 @@ saveRDS(countries,"./data/countrieswrdc.rds")
 ################################################
 ###############################################################
 #loop trough all the countries and stations
+#j= i=
 for(j in 1:length(countries)){
 nm<-countries[j]
 print(nm)

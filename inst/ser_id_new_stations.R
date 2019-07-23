@@ -2,7 +2,8 @@ library(data.table)
 library(reshape2)
 library(stringr)
 
-main.dir<-"/nobackup/users/dirksen/data/radiation_europe/WRDC/data/"
+main.dir<-"/net/pc150400/nobackup/users/dirksen/data/radiation_europe/WRDC/data_may2019/"
+write.dir<-"/net/pc150400/nobackup/users/dirksen/data/radiation_europe/WRDC/data_to_ECAD_juli2019/"
 data.name<-list.files(main.dir,pattern=".txt")
 data.name<-gsub(".*stn_","",data.name)
 data.name<-gsub(".txt","",data.name)
@@ -27,7 +28,7 @@ change_names<-function(stations){
   return(stations)
 }
 
-keyfile_WRDC<-fread("/nobackup/users/dirksen/data/radiation_europe/WRDC/keyfile_WRDC_ECAD.txt",sep="\t")
+keyfile_WRDC<-fread("/net/pc150400/nobackup/users/dirksen/data/radiation_europe/WRDC/keyfile_WRDC_ECAD.txt",sep="\t")
 names(keyfile_WRDC)<-"combi"
 keyfile_WRDC$stn<-gsub("[0-9].*","",keyfile_WRDC$combi)
 keyfile_WRDC$stn<-trimws(keyfile_WRDC$stn,"right")
@@ -67,7 +68,7 @@ df.list<-df.list[sapply(df.list,function(x) dim(x)[1]>0)]
 df.list<-mapply(cbind,df.list,ser_id=correct_key$ser_id,SIMPLIFY = FALSE)
 
 mapply(x=df.list,y=correct_key$stn_wrdc, function(x,y) write.table(x,
-                                      file=paste0("/nobackup/users/dirksen/data/radiation_europe/WRDC/data_to_ECAD/",
+                                      file=paste0(write.dir,
                                       y,".txt"),
                                       col.names = TRUE,
                                       row.names = FALSE,
@@ -77,13 +78,13 @@ keyfile_WRDC[is.na(keyfile_WRDC$data_file),] #check file which need to be moved 
 keyfile_WRDC[which(keyfile_WRDC$stn_wrdc!=keyfile_WRDC$data_file),] #possible mismatches which need to be moved manuallly
 
 #no match found
-tavauxsa<-fread("/nobackup/users/dirksen/data/radiation_europe/WRDC/data/country_FRANCE_stn_TAVAUX.txt")
-tavauxsa<-cbind(tavauxsa,ser_id=90813)
-write.table(tavauxsa,file="/nobackup/users/dirksen/data/radiation_europe/WRDC/data_to_ECAD/TAVAUXSA.txt",col.names = TRUE,row.names = FALSE,sep=",")
+tavauxsa<-fread(paste0(main.dir,"country_FRANCE_stn_TAVAUX.txt"))
+tavauxsa<-cbind(tavauxsa,ser_id=90815)
+write.table(tavauxsa,file=paste0(write.dir,"TAVAUXSA.txt"),col.names = TRUE,row.names = FALSE,sep=",")
 
-colombier<-fread("/nobackup/users/dirksen/data/radiation_europe/WRDC/data/country_FRANCE_stn_COLOMBIER_-LE_-_JEUNE.txt")
+colombier<-fread(paste0(main.dir,"country_FRANCE_stn_COLOMBIER_-LE_-_JEUNE.txt"))
 colombier<-cbind(colombier,ser_id=90684)
-write.table(colombier,file="/nobackup/users/dirksen/data/radiation_europe/WRDC/data_to_ECAD/COLOMBIER-LE-JEUNE.txt",col.names = TRUE,row.names = FALSE,sep=",")
+write.table(colombier,file=paste0(write.dir,"COLOMBIER-LE-JEUNE.txt"),col.names = TRUE,row.names = FALSE,sep=",")
 
 ##########not detected matches/mismatches:
 wrong_match<-c(1,5,17,18,20)
@@ -99,7 +100,7 @@ df.list<-df.list[sapply(df.list,function(x) dim(x)[1]>0)]
 df.list<-mapply(cbind,df.list,ser_id=df.ok$ser_id,SIMPLIFY = FALSE)
 
 mapply(x=df.list,y=df.ok$stn_wrdc, function(x,y) write.table(x,
-                                                             file=paste0("/nobackup/users/dirksen/data/radiation_europe/WRDC/data_to_ECAD/",
+                                                             file=paste0(write.dir,
                                                                          y,".txt"),
                                                              col.names = TRUE,
                                                              row.names = FALSE,
@@ -108,28 +109,25 @@ mapply(x=df.list,y=df.ok$stn_wrdc, function(x,y) write.table(x,
 df.not.ok<-keyfile_WRDC[which(keyfile_WRDC$stn_wrdc!=keyfile_WRDC$data_file),]
 df.not.ok<-df.not.ok[wrong_match]
 
-agen<-fread("/nobackup/users/dirksen/data/radiation_europe/WRDC/data/country_FRANCE_stn_AGEN.txt")
-agen<-cbind(agen,ser_id=90872)
-write.table(agen,file="/nobackup/users/dirksen/data/radiation_europe/WRDC/data_to_ECAD/AGEN.txt",col.names = TRUE,row.names = FALSE,sep=",")
+agen<-fread(paste0(main.dir,"country_FRANCE_stn_AGEN.txt"))
+agen<-cbind(agen,ser_id=90874)
+write.table(agen,file=paste0(write.dir,"AGEN.txt"),col.names = TRUE,row.names = FALSE,sep=",")
 
-gela<-fread("/nobackup/users/dirksen/data/radiation_europe/WRDC/data/country_ITALY_stn_GELA.txt")
-gela<-cbind(gela,ser_id=90964)
-write.table(gela,file="/nobackup/users/dirksen/data/radiation_europe/WRDC/data_to_ECAD/GELA.txt",col.names = TRUE,row.names = FALSE,sep=",")
+gela<-fread(paste0(main.dir,"country_ITALY_stn_GELA.txt"))
+gela<-cbind(gela,ser_id=90966)
+write.table(gela,file=paste0(write.dir,"GELA.txt"),col.names = TRUE,row.names = FALSE,sep=",")
 
-arta<-fread("/nobackup/users/dirksen/data/radiation_europe/WRDC/data/country_GREECE_stn_ARTA.txt")
+arta<-fread(paste0(main.dir,"country_GREECE_stn_ARTA.txt"))
 arta<-cbind(arta,ser_id=90696)
-write.table(arta,file="/nobackup/users/dirksen/data/radiation_europe/WRDC/data_to_ECAD/ARTA.txt",col.names = TRUE,row.names = FALSE,sep=",")
+write.table(arta,file=paste0(write.dir,"ARTA.txt"),col.names = TRUE,row.names = FALSE,sep=",")
 
-anacona<-fread("/nobackup/users/dirksen/data/radiation_europe/WRDC/data/country_ITALY_stn_ANCONA.txt")
+anacona<-fread(paste0(main.dir,"country_ITALY_stn_ANCONA.txt"))
 anacona<-cbind(anacona,ser_id=90714)
-write.table(anacona,file="/nobackup/users/dirksen/data/radiation_europe/WRDC/data_to_ECAD/ANCONA.txt",col.names = TRUE,row.names = FALSE,sep=",")
+write.table(anacona,file=paste0(write.dir,"ANCONA.txt"),col.names = TRUE,row.names = FALSE,sep=",")
 
-logrono<-fread("/nobackup/users/dirksen/data/radiation_europe/WRDC/data/country_SPAIN_stn_LOGRONO.txt")
+logrono<-fread(paste0(main.dir,"country_SPAIN_stn_LOGRONO.txt"))
 logrono<-cbind(logrono,ser_id=90741)
-write.table(logrono,file="/nobackup/users/dirksen/data/radiation_europe/WRDC/data_to_ECAD/LOGRONO.txt",col.names = TRUE,row.names = FALSE,sep=",")
-
-
-
+write.table(logrono,file=paste0(write.dir,"LOGRONO.txt"),col.names = TRUE,row.names = FALSE,sep=",")
 
 # write.table(keyfile_WRDC,file="/nobackup/users/dirksen/data/radiation_europe/WRDC/key_file_names_WRDC.txt",
 #             col.names = TRUE,

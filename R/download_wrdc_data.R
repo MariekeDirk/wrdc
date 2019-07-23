@@ -162,8 +162,20 @@ get_station_data<-function(nm,stn,yr){
 
   drop<-seq(2,length(names(df.clean)),by=2) #exclude the quality flag
   df.clean<-subset(df.clean,select=-drop)
-  df.clean<-df.clean[,1:12] #select 12 months
-  colnames(df.clean)<-c("1","2","3","4","5","6","7","8","9","10","11","12") #name them accordingly
+
+
+  #Get column names
+  link.html<-paste0("http://wrdc.mgo.rssi.ru/wrdccgi/protect.exe?data_list_full_protected/t6/",nm,"/",stn,"/",stn,"_",yr,"_t6.html")
+  header.tabel<-readHTMLTable(link.html)
+  header.tabel<-list.clean(header.tabel,fun=is.null,recursive=FALSE)
+  colnms<-names(data.frame(header.tabel))
+  l<-length(colnms)
+  drop<-seq(1,l,by=2)
+  colnms<-colnms[-drop]
+  colnms<-gsub("NULL.","",colnms)
+  #
+  df.clean<-df.clean[,1:length(colnms)] #select 12 months
+  colnames(df.clean)<-colnms #name them accordingly
   df.clean$Day<-rownames(df.clean) #add the days, which are the row numbers
 
   #transpose to long data format
@@ -173,7 +185,7 @@ get_station_data<-function(nm,stn,yr){
   df.clean<-df.clean[stats::complete.cases(df.clean$Radiation),]
   df.clean$year<-yr
   # df.clean$id<-id
-  df.clean$date<-as.Date(paste0(df.clean$year,"-",df.clean$Month,"-",df.clean$Day))
+  df.clean$date<-as.Date(paste0(df.clean$year,"-",df.clean$Month,"-",df.clean$Day),format="%Y-%b-%d")
 
   df.wrdc.ecad<-df.clean[,c("date","Radiation")] #"id",
   names(df.wrdc.ecad)<-c("ser_date","qq") #"wmo_id",
