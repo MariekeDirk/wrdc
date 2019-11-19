@@ -52,62 +52,70 @@ rm(df.wrdc.ecad)
 # rm(df.meta)
 }
 }
+
+##################ENTRIES FOR THE ECAD DATABASE
+source("inst/ser_id_new_stations.R")
+update_wrdc_entries()
+
+
+
+
 ###############################################################
 
 ###############################################################
 ###################QUALITY CONTROL#############################
 ###############################################################
-meta_data<-list.files("/net/pc150400/nobackup/users/dirksen/data/radiation_europe/WRDC/meta/",full.names = TRUE)
-meta_data<-lapply(meta_data,fread)
-meta_data<-rbindlist(meta_data)
-
-meta_data$name <- gsub(",","",meta_data$name)
-meta_data$name <- gsub("\\. / ","_",meta_data$name)
-meta_data$name <- gsub("\\. ","_",meta_data$name)
-meta_data$name <- gsub("\\.","_",meta_data$name)
-meta_data$name <- gsub(" / ","_",meta_data$name)
-meta_data$name <- gsub(" /","_",meta_data$name)
-meta_data$name <- gsub("/ ","_",meta_data$name)
-meta_data$name <- gsub("/","_",meta_data$name)
-meta_data$name <- gsub("\\'","_",meta_data$name)
-meta_data$name <- gsub(" ","_",meta_data$name)
-
-
-stn_data<-list.files("/net/pc150400/nobackup/users/dirksen/data/radiation_europe/WRDC/data_may2019/",full.names=TRUE)
-stn_names<-list.files("/net/pc150400/nobackup/users/dirksen/data/radiation_europe/WRDC/data_may2019/")
-stn_country<-gsub("_stn_.*","",stn_names)
-stn_country<-gsub("country_","",stn_country)
-stn_names<-gsub(".*_stn_","",stn_names)
-stn_names<-gsub(".txt","",stn_names)
-
-for(i in 1:length(stn_data)){
-stn<-stn_names[i]
-print(stn)
-nm<-stn_country[i]
-stn_data_one<-fread(stn_data[i])
-stn_name_one<-meta_data[which(stn_names[i]==meta_data$name),]
-print(stn_name_one)
-
-try(df.qc<-check_qq_time_series(stn_data_one,lat=stn_name_one$lat/3600,lon=stn_name_one$lon/3600),TRUE)
-try(write.table(df.qc,paste0("/net/pc150400/nobackup/users/dirksen/data/radiation_europe/WRDC/data_qc_may2019/country_",nm,"_stn_",stn,"_qc.txt"),
-                row.names = FALSE,
-                col.names = TRUE,
-                sep=","),TRUE)
-
-try(df.qc$density<-get_density(df.qc$zenith_mean,df.qc$qq,  n = 100),TRUE)
-try(qc<-ggplot(df.qc,aes(x=zenith_mean)) +
-  geom_point(aes(y=qq,color=density)) +
-  #geom_smooth(aes(y=Qmax_zen),color="red",linetype="dashed") +
-  #geom_smooth(aes(y=Qrare_zen),color="orange",linetype="dashed") +
-  geom_smooth(aes(y=Qmax),color="yellow") +
-  geom_smooth(aes(y=Qmin),color="green") +
-  xlab("Mean Daytime Solar Zenith") +
-  ylab("Global Radiation") +
-  scale_color_viridis() +
-  ggtitle(paste0("Country = ", nm, ", Station = ",stn)) +
-  theme_bw(),TRUE)
-try(ggsave(qc,filename = paste0("/usr/people/dirksen/Pictures/wrdc/fig_qc/",nm,"_",stn,".png")),TRUE)
-rm(df.qc)
-rm(qc)
-}
-
+# meta_data<-list.files("/net/pc150400/nobackup/users/dirksen/data/radiation_europe/WRDC/meta/",full.names = TRUE)
+# meta_data<-lapply(meta_data,fread)
+# meta_data<-rbindlist(meta_data)
+#
+# meta_data$name <- gsub(",","",meta_data$name)
+# meta_data$name <- gsub("\\. / ","_",meta_data$name)
+# meta_data$name <- gsub("\\. ","_",meta_data$name)
+# meta_data$name <- gsub("\\.","_",meta_data$name)
+# meta_data$name <- gsub(" / ","_",meta_data$name)
+# meta_data$name <- gsub(" /","_",meta_data$name)
+# meta_data$name <- gsub("/ ","_",meta_data$name)
+# meta_data$name <- gsub("/","_",meta_data$name)
+# meta_data$name <- gsub("\\'","_",meta_data$name)
+# meta_data$name <- gsub(" ","_",meta_data$name)
+#
+#
+# stn_data<-list.files("/net/pc150400/nobackup/users/dirksen/data/radiation_europe/WRDC/data_may2019/",full.names=TRUE)
+# stn_names<-list.files("/net/pc150400/nobackup/users/dirksen/data/radiation_europe/WRDC/data_may2019/")
+# stn_country<-gsub("_stn_.*","",stn_names)
+# stn_country<-gsub("country_","",stn_country)
+# stn_names<-gsub(".*_stn_","",stn_names)
+# stn_names<-gsub(".txt","",stn_names)
+#
+# for(i in 1:length(stn_data)){
+# stn<-stn_names[i]
+# print(stn)
+# nm<-stn_country[i]
+# stn_data_one<-fread(stn_data[i])
+# stn_name_one<-meta_data[which(stn_names[i]==meta_data$name),]
+# print(stn_name_one)
+#
+# try(df.qc<-check_qq_time_series(stn_data_one,lat=stn_name_one$lat/3600,lon=stn_name_one$lon/3600),TRUE)
+# try(write.table(df.qc,paste0("/net/pc150400/nobackup/users/dirksen/data/radiation_europe/WRDC/data_qc_may2019/country_",nm,"_stn_",stn,"_qc.txt"),
+#                 row.names = FALSE,
+#                 col.names = TRUE,
+#                 sep=","),TRUE)
+#
+# try(df.qc$density<-get_density(df.qc$zenith_mean,df.qc$qq,  n = 100),TRUE)
+# try(qc<-ggplot(df.qc,aes(x=zenith_mean)) +
+#   geom_point(aes(y=qq,color=density)) +
+#   #geom_smooth(aes(y=Qmax_zen),color="red",linetype="dashed") +
+#   #geom_smooth(aes(y=Qrare_zen),color="orange",linetype="dashed") +
+#   geom_smooth(aes(y=Qmax),color="yellow") +
+#   geom_smooth(aes(y=Qmin),color="green") +
+#   xlab("Mean Daytime Solar Zenith") +
+#   ylab("Global Radiation") +
+#   scale_color_viridis() +
+#   ggtitle(paste0("Country = ", nm, ", Station = ",stn)) +
+#   theme_bw(),TRUE)
+# try(ggsave(qc,filename = paste0("/usr/people/dirksen/Pictures/wrdc/fig_qc/",nm,"_",stn,".png")),TRUE)
+# rm(df.qc)
+# rm(qc)
+# }
+#
